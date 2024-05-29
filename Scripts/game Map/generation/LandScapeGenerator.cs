@@ -69,11 +69,11 @@ public class LandscapeGenerator : Generator<Tile>
 
                 // tile.SetColor(heighValue./Lerp(lowValue, colorVal[x, y]));
 
-                // float[,] colorVal = temperatureMap;
+                float[,] colorVal = temperatureMap;
                 // float[,] colorVal = elevationMap;
-                float[,] colorVal = moistureMap;
-
-                tile.SetColor(GetTemperatureColor(colorVal[x, y]));
+                // float[,] colorVal = moistureMap;
+                    
+                tile.SetColor(GetTileColor(colorVal[x, y],true));
 
 
                 generatedTiles[x, y] = tile;
@@ -137,11 +137,15 @@ public class LandscapeGenerator : Generator<Tile>
         }
         else if (Temperature < -0.25)
         {
-            heatColor = Colors.Cyan;
+            heatColor = Colors.Blue;
+        }
+        else if (Temperature < -0.10)
+        {
+            heatColor = Colors.LightBlue;
         }
         else if (Temperature < 0.25)
         {
-            heatColor = Colors.Green;
+            heatColor = Colors.ForestGreen;
         }
         else if (Temperature < 0.7)
         {
@@ -163,8 +167,38 @@ public class LandscapeGenerator : Generator<Tile>
         {
             heatColor = Colors.DarkRed;
         }
-
         
+        return heatColor;
+    }
+      private Color GetElevationColor(float elevation)
+    {
+        Color heatColor;
+
+        if (elevation <= 0.15)
+        {
+            heatColor = Colors.DarkBlue;
+        }
+        else if (elevation <= 0.3)
+        {
+            heatColor = Colors.Cyan;
+        }
+        else if (elevation <= 0.5)
+        {
+            heatColor = Colors.DarkGray;
+        }
+        else if (elevation <= 0.7)
+        {
+            heatColor = Colors.Gray;
+        }
+        else if (elevation <= 0.8)
+        {
+            heatColor = Colors.LightGray;
+        }
+       
+        else
+        {
+            heatColor = Colors.White;
+        }
         
         return heatColor;
     }

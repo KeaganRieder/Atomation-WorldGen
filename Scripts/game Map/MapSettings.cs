@@ -19,10 +19,9 @@ public class MapSettings
 
     [JsonProperty]
     private GeneratorConfigs temperatureSettings;
-    [JsonProperty]
-    private float planetPolesTemperature;
-    [JsonProperty]
-    private float planetEquatorTemperature;
+
+    private float polesTemperature;
+    private float equatorTemperature;
 
 
     [JsonProperty]
@@ -41,33 +40,33 @@ public class MapSettings
     [JsonIgnore]
     public GeneratorConfigs MoistureGenSettings { get => moistureGenSettings; set => moistureGenSettings = value; }
     [JsonIgnore]
-    public float PlanetPolesTemperature { get => planetPolesTemperature; set => planetPolesTemperature = value; }
+    public float PlanetPolesTemperature { get => polesTemperature; set => polesTemperature = value; }
     [JsonIgnore]
-    public float PlanetEquatorTemperature { get => planetEquatorTemperature; set => planetEquatorTemperature = value; }
+    public float PlanetEquatorTemperature { get => equatorTemperature; set => equatorTemperature = value; }
 
     public void DefaultSettings()
     {
         InfiniteWorld = true;
-        worldSize = new Vector2I(64, 64);
-        elevationSettings = new GeneratorConfigs()
+        worldSize = new Vector2I(156, 156);
+        elevationSettings = new GeneratorConfigs() //leave this alone!
         {
             Layered = false,
             BaseValue = 0,
             NoiseConfigs = new NoiseConfigs
             {
                 Seed = 0,
-                Octaves = 5,
-                Frequency = 0.03f,
-                Lacunarity = 3.0f,
-                Gain = 0.4f,
-                NoiseType = FastNoiseLite.NoiseTypeEnum.SimplexSmooth,
+                Octaves = 4,
+                Frequency = 0.5f,
+                Lacunarity = 3f,
+                Gain = 0.41f,
+                NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
                 FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
                 NoiseOffset = Vector2.Zero,
             }
         };
 
-        planetPolesTemperature = -0.4f; // -30 celsius
-        planetEquatorTemperature = 0.6f;// 30 celsius
+        polesTemperature = -0.6f; // -40 celsius
+        equatorTemperature = 0.4f; // 40 celsius
         temperatureSettings = new GeneratorConfigs()
         {
             Layered = true,

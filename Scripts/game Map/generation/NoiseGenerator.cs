@@ -5,6 +5,7 @@ using Godot;
 /// <summary>
 /// generates a noise map based on settings. the map is then scale based on the 
 /// map size
+/// TODO: make smoothing section
 /// </summary>
 public class NoiseGenerator : Generator<float>
 {
@@ -13,7 +14,7 @@ public class NoiseGenerator : Generator<float>
     protected GeneratorConfigs settings;
 
     public NoiseGenerator() : base() { }
-    
+
     public NoiseGenerator(GeneratorConfigs settings = null) : base()
     {
         SetSettings(settings);
@@ -30,7 +31,8 @@ public class NoiseGenerator : Generator<float>
         noiseMap = new float[genSize.X, genSize.Y];
     }
 
-    protected override bool ValidateGenerator(){
+    protected override bool ValidateGenerator()
+    {
         if (settings == null)
         {
             noiseMap = null;
@@ -53,21 +55,25 @@ public class NoiseGenerator : Generator<float>
         settings.NoiseConfigs.NoiseOffset = genOffset;
 
         FastNoiseLite noiseGenerator = settings.NoiseConfigs.FastNoiseLite;
+        float totalWidth = totalSize.X;
+        float totalHeight = totalSize.Y;
+
 
         for (int x = 0; x < genSize.X; x++)
         {
             for (int y = 0; y < genSize.Y; y++)
             {
-                float sampleX = x / totalSize.X;
-                float sampleY = y / totalSize.Y;
-
+                float sampleX = x / totalWidth;
+                float sampleY = y / totalHeight;
+                // GD.Print($"{x / test}");
                 float noise = noiseGenerator.GetNoise2D(sampleX, sampleY);
-                noiseMap[x, y] = Mathf.InverseLerp(-1, 1, noise); //normalize value to be between 0 and 1
+                noiseMap[x, y] = noise;//(noise +1)/2; //normalize value to be between 0 and 1
 
                 SetMax(noiseMap[x, y]);
                 SetMin(noiseMap[x, y]);
             }
         }
+
 
         PrintMinMax();
     }

@@ -17,8 +17,6 @@ public class TemperatureGenerator : NoiseGenerator
     public TemperatureGenerator() { }
     public TemperatureGenerator(GeneratorConfigs settings = null) : base(settings)
     {
-        // this.equatorTemp = equatorTemp;
-        // this.poleTemp = poleTemp;
     }
 
     public void SetSettings(float equatorTemp, float poleTemp, GeneratorConfigs settings)
@@ -38,7 +36,7 @@ public class TemperatureGenerator : NoiseGenerator
 
         SetSize(size);
         SetOffset(offset);
-        equatorHeight = settings.TrueCenter ? genSize.Y * .5f : 0;
+        equatorHeight = settings.TrueCenter ? totalSize.Y * .5f : 0;
 
         for (int y = 0; y < genSize.Y; y++)
         {
@@ -57,11 +55,10 @@ public class TemperatureGenerator : NoiseGenerator
     /// </summary>
     private float CalculateTemperature(int x, int y)
     {
-
         // float latitudeTemperature = 
-        float equatorTemp = Mathf.Lerp(this.equatorTemp, poleTemp, DistanceFromEquator(y)) + settings.BaseValue;
+        float equatorTemp = Mathf.Lerp(this.equatorTemp, poleTemp, DistanceFromEquator(y))*3;// + settings.BaseValue;
 
-        float temperature = equatorTemp + elevationLayer.GetLayerValue(x, y);//settings.BaseValue + (latitudeTemperature );
+        float temperature = equatorTemp;//DistanceFromEquator(y);// equatorTemp ;//- elevationLayer.GetLayerValue(x, y);//settings.BaseValue + (latitudeTemperature );
 
         return temperature;// + settings.BaseValue;
     }
@@ -71,10 +68,10 @@ public class TemperatureGenerator : NoiseGenerator
     /// </summary>
     private float DistanceFromEquator(int y)
     {
-        float distance = Mathf.Abs(y + genOffset.Y - equatorHeight);
+        float distance = Mathf.Abs((y + genOffset.Y) - equatorHeight);
 
-        float value = distance/ genSize.Y;
-        // GD.Print(value);
-        return value;
+        distance /= totalSize.Y;
+        // GD.Print(distance);
+        return distance;
     }
 }

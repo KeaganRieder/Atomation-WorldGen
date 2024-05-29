@@ -41,6 +41,6 @@ public class GenLayerConfigs
         {
             layerHeight = 1;
         }
-        return (layerGenerator.GetValue(x, y))*(layerGenerator.GetValue(x, y)); // layerHeight) * layerEffect;
+        return layerGenerator.GetValue(x, y); // layerHeight) * layerEffect;
     }
 }

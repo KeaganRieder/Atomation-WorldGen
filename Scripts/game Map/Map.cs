@@ -74,15 +74,18 @@ public partial class Map : Node2D
         Vector2I offset = Vector2I.Zero;
 
         elevationGenerator.SetSettings(settings.ElevationSettings);
+        elevationGenerator.SetTotalSize(settings.WorldSize);
         elevationGenerator.RunGenerator(offset, size);
 
         settings.TemperatureSettings.SetLayerMap("Elevation", elevationGenerator);
         settings.MoistureGenSettings.SetLayerMap("Elevation", elevationGenerator);
 
         temperatureGenerator.SetSettings(settings.PlanetEquatorTemperature, settings.PlanetPolesTemperature, settings.TemperatureSettings);
+        temperatureGenerator.SetTotalSize(settings.WorldSize);
         temperatureGenerator.RunGenerator(offset, size);
 
         settings.MoistureGenSettings.SetLayerMap("Temperature", temperatureGenerator);
+        moistureGenerator.SetTotalSize(settings.WorldSize);
         moistureGenerator.SetSettings(settings.MoistureGenSettings);
         moistureGenerator.RunGenerator(offset, size);
 

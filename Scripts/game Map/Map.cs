@@ -80,7 +80,7 @@ public partial class Map : Node2D
         settings.TemperatureSettings.SetLayerMap("Elevation", elevationGenerator);
         settings.MoistureGenSettings.SetLayerMap("Elevation", elevationGenerator);
 
-        temperatureGenerator.SetSettings(settings.PlanetEquatorTemperature, settings.PlanetPolesTemperature, settings.TemperatureSettings);
+        temperatureGenerator.SetSettings(settings.TemperatureSettings);
         temperatureGenerator.SetTotalSize(settings.WorldSize);
         temperatureGenerator.RunGenerator(offset, size);
 

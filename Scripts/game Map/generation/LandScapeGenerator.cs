@@ -64,14 +64,9 @@ public class LandscapeGenerator : Generator<Tile>
                 Vector2 tilePosition = new Vector2(x + offset.X, y + offset.Y) * Map.CELL_SIZE;
                 Tile tile = new Tile(tilePosition);
 
-                Color lowValue = Colors.Black;
-                Color heighValue = Colors.Red;
-
-                // tile.SetColor(heighValue./Lerp(lowValue, colorVal[x, y]));
-
-                float[,] colorVal = temperatureMap;
+                // float[,] colorVal = temperatureMap;
                 // float[,] colorVal = elevationMap;
-                // float[,] colorVal = moistureMap;
+                float[,] colorVal = moistureMap;
                     
                 tile.SetColor(GetTileColor(colorVal[x, y],true));
 

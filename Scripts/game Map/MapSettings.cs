@@ -20,9 +20,6 @@ public class MapSettings
     [JsonProperty]
     private GeneratorConfigs temperatureSettings;
 
-    private float polesTemperature;
-    private float equatorTemperature;
-
 
     [JsonProperty]
     private GeneratorConfigs moistureGenSettings;
@@ -39,10 +36,7 @@ public class MapSettings
     public GeneratorConfigs TemperatureSettings { get => temperatureSettings; set => temperatureSettings = value; }
     [JsonIgnore]
     public GeneratorConfigs MoistureGenSettings { get => moistureGenSettings; set => moistureGenSettings = value; }
-    [JsonIgnore]
-    public float PlanetPolesTemperature { get => polesTemperature; set => polesTemperature = value; }
-    [JsonIgnore]
-    public float PlanetEquatorTemperature { get => equatorTemperature; set => equatorTemperature = value; }
+   
 
     public void DefaultSettings()
     {
@@ -65,16 +59,15 @@ public class MapSettings
             }
         };
 
-        polesTemperature = -0.6f; // -40 celsius
-        equatorTemperature = 0.4f; // 40 celsius
-        temperatureSettings = new GeneratorConfigs()
+
+        temperatureSettings = new GeneratorConfigs() //leave this alone!
         {
             Layered = true,
             TrueCenter = true,
-            BaseValue = 0.3f,
+            BaseValue = -0.1f,
             NoiseConfigs = null,
             LayerConfigs = new System.Collections.Generic.Dictionary<string, GenLayerConfigs>{
-                {"Elevation", new GenLayerConfigs{LayerEffect = 0.2f, LayerHeight = 0f}}
+                {"Elevation", new GenLayerConfigs{LayerEffect = 0.5f, LayerHeight = 0.1f}}
             }
         };
 

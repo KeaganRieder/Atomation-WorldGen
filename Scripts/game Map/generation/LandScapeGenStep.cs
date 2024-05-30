@@ -79,9 +79,9 @@ public class LandScapeGenStep : Generator<Tile>
                 // string biome = SelectBiome(x, y);
 
                 // tile.SetColor(FormLandScape(x, y));
-                // tile.SetColor(new Color(temperature[x,y],temperature[x,y],temperature[x,y]));
+                tile.SetColor(new Color(moisture[x,y],moisture[x,y],moisture[x,y]));
 
-                tile.SetColor(GetTemperature(x, y));
+                // tile.SetColor(GetTemperature(x, y));
 
                 // tile.SetColor(GetBiomeColor(biome));
 

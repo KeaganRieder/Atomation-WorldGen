@@ -8,9 +8,8 @@ using Godot;
 public class TemperatureGenerator : NoiseGenerator
 {
     private float equatorHeight;
-    public LayerConfig Elevation { get; set; }
+    // public LayerConfig Elevation { get; set; }
     public LayerConfig HeatMap { get; set; }
-
 
     public TemperatureGenerator(GeneratorConfigs settings = null) : base(settings) { }
 
@@ -32,22 +31,14 @@ public class TemperatureGenerator : NoiseGenerator
         {
             for (int x = 0; x < genSize.X; x++)
             {
-                equatorHeat[x, y] = 1 - CalculateEquatorTemperature(y);
-                float temperature = equatorHeat[x, y] * HeatMap.GetValue(x, y);
 
-                noiseMap[x, y] = temperature + settings.BaseValue + Elevation.GetValue(x,y);
+                equatorHeat[x, y] = 1 - CalculateEquatorTemperature(y);
+                float temperature = equatorHeat[x, y] + HeatMap.GetValue(x,y);
+                noiseMap[x, y] = temperature;
                 SetMin(noiseMap[x, y]);
                 SetMax(noiseMap[x, y]);
             }
         }
-        // //using equator heat to make temperature map
-        // for (int x = 0; x < genSize.X; x++)
-        // {
-        //     for (int y = 0; y < genSize.Y; y++)
-        //     {
-                
-        //     }
-        // }
 
         PrintMinMax();
         return noiseMap;
@@ -60,7 +51,7 @@ public class TemperatureGenerator : NoiseGenerator
     {
         float distance = Mathf.Abs(y + genOffset.Y - equatorHeight);
 
-        distance /= totalSize.Y ;
+        distance /= totalSize.Y / 3f;
         return distance;
     }
 }

@@ -42,7 +42,7 @@ public class MapSettings
         InfiniteWorld = true;
         worldSize = new Vector2I(100, 100);
 
-        elevationSettings = new GeneratorConfigs() //leave this alone!
+        elevationSettings = new GeneratorConfigs() 
         {
             BaseValue = 0,
             NoiseConfigs = new NoiseConfigs
@@ -59,18 +59,17 @@ public class MapSettings
             }
         };
 
-
         temperatureSettings = new GeneratorConfigs()
         {
-            TrueCenter = true,
+            TrueCenter = false,
             BaseValue = 0.0f,
             NoiseConfigs = new NoiseConfigs
             {
                 Seed = 0,
-                Octaves = 5,
-                Frequency = .5f,
+                Octaves = 2,
+                Frequency = 3f,
                 Lacunarity = 3f,
-                Gain = 0.4f,
+                Gain = 0.3f,
                 NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
                 FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
                 NoiseOffset = Vector2.Zero,

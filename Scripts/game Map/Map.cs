@@ -105,7 +105,6 @@ public partial class Map : Node2D
         elevationGenerator.SetTotalSize(TotalSize);
         noiseMaps.Add("elevation", elevationGenerator.Run(offset, size));
 
-
         GD.Print("Temp");
         NoiseGenerator heatMap = new NoiseGenerator();
         heatMap.SetTotalSize(TotalSize);
@@ -115,21 +114,14 @@ public partial class Map : Node2D
         temperatureGenerator.HeatMap = new LayerConfig
         {
             LayerEffect = 1f,
-            ValueMap = heatMap.Run(offset, size),
-            Squared = false,
-            Positive = true
-        };
-        temperatureGenerator.Elevation = new LayerConfig
-        {
-            LayerEffect = 1f,
-            ValueMap = noiseMaps["elevation"],
+            ValueMap = heatMap.Run(offset + new Vector2(100,100), size),
             Squared = true,
             Positive = false
         };
 
         noiseMaps.Add("temperature", temperatureGenerator.Run(offset, size));
+
         GD.Print("moist");
-        
         NoiseGenerator rainFallMap = new NoiseGenerator();
         rainFallMap.SetTotalSize(TotalSize);
         rainFallMap.SetSettings(settings.MoistureGenSettings);

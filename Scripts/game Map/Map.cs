@@ -2,6 +2,8 @@ namespace Atomation.GameMap;
 
 using Godot;
 using System;
+using System.Collections.Generic;
+
 
 public partial class Map : Node2D
 {
@@ -28,13 +30,12 @@ public partial class Map : Node2D
     private NoiseGenerator elevationGenerator;
     private TemperatureGenerator temperatureGenerator;
     private MoistureGenerator moistureGenerator;
-
-    private LandscapeGenerator landScapeGenerator;
+    private LandScapeGenStep landScapeGenStep;
 
     public Map()
     {
         chunkHandler = new ChunkHandler();
-        chunkLoader = new ChunkLoader(chunkHandler); //todo
+        chunkLoader = new ChunkLoader(chunkHandler);
 
         settings = new MapSettings();
         settings.DefaultSettings();
@@ -42,8 +43,7 @@ public partial class Map : Node2D
         elevationGenerator = new NoiseGenerator();
         temperatureGenerator = new TemperatureGenerator();
         moistureGenerator = new MoistureGenerator();
-
-        landScapeGenerator = new LandscapeGenerator();
+        landScapeGenStep = new LandScapeGenStep();
     }
 
     public override void _Ready()
@@ -70,44 +70,16 @@ public partial class Map : Node2D
     /// </summary>
     public void GenerateMap()
     {
-        Vector2I size = settings.WorldSize;
-        Vector2I offset = Vector2I.Zero;
+        Dictionary<string, float[,]> noiseMaps = GenerateNoiseMaps(settings.WorldSize, settings.WorldSize, Vector2I.Zero);
 
-        elevationGenerator.SetSettings(settings.ElevationSettings);
-        elevationGenerator.SetTotalSize(settings.WorldSize);
-        elevationGenerator.RunGenerator(offset, size);
+        landScapeGenStep.SetNoiseMaps(noiseMaps);
+        landScapeGenStep.SetTotalSize(settings.WorldSize);
+        Tile[,] terrain = landScapeGenStep.Run(Vector2I.Zero, settings.WorldSize);
 
-        settings.TemperatureSettings.SetLayerMap("Elevation", elevationGenerator);
-        settings.MoistureGenSettings.SetLayerMap("Elevation", elevationGenerator);
-
-        temperatureGenerator.SetSettings(settings.TemperatureSettings);
-        temperatureGenerator.SetTotalSize(settings.WorldSize);
-        temperatureGenerator.RunGenerator(offset, size);
-
-        settings.MoistureGenSettings.SetLayerMap("Temperature", temperatureGenerator);
-        moistureGenerator.SetTotalSize(settings.WorldSize);
-        moistureGenerator.SetSettings(settings.MoistureGenSettings);
-        moistureGenerator.RunGenerator(offset, size);
-
-        landScapeGenerator.SetElevation(elevationGenerator.GetMap());
-        landScapeGenerator.SetTemperature(temperatureGenerator.GetMap());
-        landScapeGenerator.SetMoisture(moistureGenerator.GetMap());
-
-        landScapeGenerator.RunGenerator(offset, size);
-
-        Tile[,] tiles = landScapeGenerator.GetMap();
-
-        for (int x = 0; x < size.X; x++)
+        foreach (var tile in terrain)
         {
-            for (int y = 0; y < size.Y; y++)
-            {
-                AddChild(tiles[x, y]);
-            }
+            AddChild(tile);
         }
-
-        elevationGenerator.ClearMap();
-        temperatureGenerator.ClearMap();
-        landScapeGenerator.ClearMap();
     }
 
     /// <summary>
@@ -115,5 +87,79 @@ public partial class Map : Node2D
     /// </summary>
     public void GenerateChunk(Vector2 chunkPosition)
     {
+        GenerateNoiseMaps(default, settings.WorldSize, chunkPosition);
     }
+
+    /// <summary>
+    /// generates the moisture, elevation and temperature maps
+    /// which then is passed to generationSteps
+    /// </summary>
+    private Dictionary<string, float[,]> GenerateNoiseMaps(Vector2I size, Vector2I TotalSize, Vector2 offset)
+    {
+        Dictionary<string, float[,]> noiseMaps = new Dictionary<string, float[,]>();
+
+        elevationGenerator.SetSettings(settings.ElevationSettings);
+        temperatureGenerator.SetSettings(settings.TemperatureSettings);
+        moistureGenerator.SetSettings(settings.MoistureGenSettings);
+
+        elevationGenerator.SetTotalSize(TotalSize);
+        noiseMaps.Add("elevation", elevationGenerator.Run(offset, size));
+
+
+        GD.Print("Temp");
+        NoiseGenerator heatMap = new NoiseGenerator();
+        heatMap.SetTotalSize(TotalSize);
+        heatMap.SetSettings(settings.TemperatureSettings);
+
+        temperatureGenerator.SetTotalSize(TotalSize);
+        temperatureGenerator.HeatMap = new LayerConfig
+        {
+            LayerEffect = 1f,
+            ValueMap = heatMap.Run(offset, size),
+            Squared = false,
+            Positive = true
+        };
+        temperatureGenerator.Elevation = new LayerConfig
+        {
+            LayerEffect = 1f,
+            ValueMap = noiseMaps["elevation"],
+            Squared = true,
+            Positive = false
+        };
+
+        noiseMaps.Add("temperature", temperatureGenerator.Run(offset, size));
+        GD.Print("moist");
+        
+        NoiseGenerator rainFallMap = new NoiseGenerator();
+        rainFallMap.SetTotalSize(TotalSize);
+        rainFallMap.SetSettings(settings.MoistureGenSettings);
+
+        moistureGenerator.Elevation = new LayerConfig
+        {
+            LayerEffect = 0.8f,
+            ValueMap = noiseMaps["elevation"],
+            Squared = true,
+            Positive = false
+        };
+        moistureGenerator.Temperature = new LayerConfig
+        {
+            LayerEffect = 0.1f,
+            ValueMap = noiseMaps["temperature"],
+            Squared = true,
+            Positive = false
+        };
+        moistureGenerator.Rainfall = new LayerConfig
+        {
+            LayerEffect = 0.5f,
+            ValueMap = rainFallMap.Run(offset + new Vector2(100, 100), size),
+            Squared = false,
+            Positive = true
+        };
+
+        moistureGenerator.SetTotalSize(TotalSize);
+        noiseMaps.Add("moisture", moistureGenerator.Run(offset, size));
+
+        return noiseMaps;
+    }
+
 }

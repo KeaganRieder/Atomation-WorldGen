@@ -17,6 +17,8 @@ public class NoiseConfigs
     protected int octaves;
     protected Vector2 noiseOffset;
 
+    private bool normalize;
+
     public NoiseConfigs() { fastNoiseLite = new FastNoiseLite(); }
 
     public int Seed
@@ -28,6 +30,7 @@ public class NoiseConfigs
             fastNoiseLite.Seed = seed;
         }
     }
+
     public float Frequency
     {
         get => frequency;
@@ -37,6 +40,7 @@ public class NoiseConfigs
             fastNoiseLite.Frequency = value;
         }
     }
+
     public float Lacunarity
     {
         get => lacunarity;
@@ -55,6 +59,7 @@ public class NoiseConfigs
             fastNoiseLite.FractalGain = value;
         }
     }
+
     public int Octaves
     {
         get => octaves;
@@ -64,6 +69,7 @@ public class NoiseConfigs
             fastNoiseLite.FractalOctaves = value;
         }
     }
+
     public Vector2 NoiseOffset
     {
         get => noiseOffset;
@@ -73,11 +79,13 @@ public class NoiseConfigs
             fastNoiseLite.Offset = new Vector3(noiseOffset.X, noiseOffset.Y, 0);
         }
     }
+
     public FastNoiseLite.NoiseTypeEnum NoiseType
     {
         get => fastNoiseLite.NoiseType;
         set { fastNoiseLite.NoiseType = value; }
     }
+
     public FastNoiseLite.FractalTypeEnum FractalType
     {
         get => fastNoiseLite.FractalType;
@@ -85,4 +93,6 @@ public class NoiseConfigs
     }
 
     public FastNoiseLite FastNoiseLite { get => fastNoiseLite; private set => fastNoiseLite = value; }
+
+    public bool Normalized { get => normalize; set => normalize = value; }
 }

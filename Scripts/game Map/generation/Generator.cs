@@ -87,17 +87,18 @@ public abstract class Generator<ValueType>
     /// runs before generation to ensure generators valid
     /// Ie settings and everything else needed is set
     /// </summary>
-    protected virtual bool ValidateGenerator(){
+    protected virtual bool Validate(){
         GD.PushError("Validation process not implemented");
         return false;
     }
 
     /// <summary> 
-    /// runs the generator 
+    /// runs the generator and returns the outcome
     /// </summary>
-    public virtual void RunGenerator(Vector2 offset = default, Vector2I size = default)
+    public virtual ValueType[,] Run(Vector2 offset = default, Vector2I size = default)
     {
         GD.PushError("Generate is not implemented");
+        return default;
     }
 
     /// <summary> 
@@ -136,7 +137,7 @@ public abstract class Generator<ValueType>
     /// <summary>
     /// clears the generators maps
     /// </summary>
-    public virtual void ClearMap(){
+    public virtual void Clear(){
         GD.PushError("Clearing is not implemented");
 
     }

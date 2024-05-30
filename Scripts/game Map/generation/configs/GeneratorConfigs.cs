@@ -11,11 +11,6 @@ using Newtonsoft.Json;
 public class GeneratorConfigs
 {
     /// <summary>
-    /// determine if a noise map gets layed or not
-    /// </summary>
-    [JsonProperty]
-    protected bool layered = false;
-    /// <summary>
     /// determines if the noise map uses true center of games map, 
     /// or not - only really used in temperature gen
     /// </summary>
@@ -41,25 +36,9 @@ public class GeneratorConfigs
     [JsonProperty]
     protected NoiseConfigs noiseConfigs;
 
-    /// <summary>
-    /// collection of configs which are use to determine how 
-    /// layers are added together
-    ///     key = string which is usually the type of generator the 
-    ///     layer's from
-    ///     value = actual configs ofr generated layer 
-    /// </summary>
-    [JsonProperty]
-    protected Dictionary<string, GenLayerConfigs> layerConfigs;
-
     [JsonConstructor]
-    public GeneratorConfigs() { }
+    public GeneratorConfigs() {}
 
-    [JsonIgnore]
-    public bool Layered
-    {
-        get => layered;
-        set => layered = value;
-    }
     [JsonIgnore]
     public bool TrueCenter
     {
@@ -81,48 +60,5 @@ public class GeneratorConfigs
         set => noiseConfigs = value;
     }
 
-    public Dictionary<string, GenLayerConfigs> LayerConfigs
-    {
-        get
-        {
-            if (!layered)
-            {
-                return null;
-            }
-            return layerConfigs;
-        }
-        set
-        {
-            if (!layered)
-            {
-                layerConfigs = null;
-            }
-            layerConfigs = value;
-        }
-    }
-
     public float Multiplier { get => multiplier; set => multiplier = value; }
-
-    /// <summary>
-    /// sets the value of teh layer for teh given config
-    /// </summary>
-    public void SetLayerMap(string layerKey, Generator<float> generator)
-    {
-        if (!layered)
-        {
-            GD.Print("Not Layerd");
-            return;
-        }
-
-        if (layerConfigs.ContainsKey(layerKey))
-        {
-            // GD.Print($"{layerKey}");
-
-            layerConfigs[layerKey].LayerGenerator =generator;
-        }
-        else
-        {
-            GD.PushError($"Attempted to add value for layer {layerKey} but none exist");
-        }
-    }
 }

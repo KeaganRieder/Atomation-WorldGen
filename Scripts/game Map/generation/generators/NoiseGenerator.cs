@@ -9,8 +9,6 @@ using Godot;
 /// </summary>
 public class NoiseGenerator : Generator<float>
 {
-    protected float[,] noiseMap;
-
     protected GeneratorConfigs settings;
 
     public NoiseGenerator() : base() { }
@@ -28,29 +26,28 @@ public class NoiseGenerator : Generator<float>
     public override void SetSize(Vector2I size)
     {
         base.SetSize(size);
-        noiseMap = new float[genSize.X, genSize.Y];
     }
 
-    protected override bool ValidateGenerator()
+    protected override bool Validate()
     {
         if (settings == null)
         {
-            noiseMap = null;
             GD.PushError("can't generate settings are not provided");
             return false;
         }
         return true;
     }
 
-    public override void RunGenerator(Vector2 offset = default, Vector2I size = default)
+    public override float[,] Run(Vector2 offset = default, Vector2I size = default)
     {
-        if (!ValidateGenerator())
+        if (!Validate())
         {
-            return;
+            return default;
         }
 
         SetSize(size);
         SetOffset(offset);
+        float[,] noiseMap = new float[genSize.X, genSize.Y];
 
         settings.NoiseConfigs.NoiseOffset = genOffset;
 
@@ -58,51 +55,30 @@ public class NoiseGenerator : Generator<float>
         float totalWidth = totalSize.X;
         float totalHeight = totalSize.Y;
 
-
         for (int x = 0; x < genSize.X; x++)
         {
             for (int y = 0; y < genSize.Y; y++)
             {
-                float sampleX = x / totalWidth;
-                float sampleY = y / totalHeight;
-                // GD.Print($"{x / test}");
+                float sampleX = (x / totalWidth);
+                float sampleY = (y / totalHeight);
                 float noise = noiseGenerator.GetNoise2D(sampleX, sampleY);
-                noiseMap[x, y] = noise;//(noise +1)/2; //normalize value to be between 0 and 1
+
+                if (settings.NoiseConfigs.Normalized)
+                {
+                    noiseMap[x, y] = (noise + 1) / 2; //make between 0-1
+                }
+                else
+                {
+                    noiseMap[x, y] = noise;
+                }
 
                 SetMax(noiseMap[x, y]);
                 SetMin(noiseMap[x, y]);
             }
         }
 
-
         PrintMinMax();
-    }
-
-    /// <summary> 
-    /// returns a value at the given point form noise map generated form the generator
-    /// </summary>
-    public override float GetValue(int x, int y)
-    {
-        if (x < 0 && y < 0 && x > genSize.X && y > genSize.Y)
-        {
-            GD.PushError($"Provided values {x}, {y} are outside generators size {genSize}");
-            return 0;
-        }
-        float value = noiseMap[x, y];
-        return value;
-    }
-
-    /// <summary> 
-    /// returns the noise map generated form the generator
-    /// </summary>
-    public override float[,] GetMap()
-    {
         return noiseMap;
     }
 
-
-    public override void ClearMap()
-    {
-        noiseMap = null;
-    }
 }

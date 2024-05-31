@@ -4,7 +4,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-
+/// <summary>
+/// The Games map
+/// </summary>
 public partial class Map : Node2D
 {
     public const int CELL_SIZE = 16;
@@ -27,11 +29,6 @@ public partial class Map : Node2D
     private ChunkHandler chunkHandler;
     private ChunkLoader chunkLoader;
 
-    private NoiseGenerator elevationGenerator;
-    private TemperatureGenerator temperatureGenerator;
-    private MoistureGenerator moistureGenerator;
-    private LandScapeGenStep landScapeGenStep;
-
     public Map()
     {
         chunkHandler = new ChunkHandler();
@@ -39,11 +36,6 @@ public partial class Map : Node2D
 
         settings = new MapSettings();
         settings.DefaultSettings();
-
-        elevationGenerator = new NoiseGenerator();
-        temperatureGenerator = new TemperatureGenerator();
-        moistureGenerator = new MoistureGenerator();
-        landScapeGenStep = new LandScapeGenStep();
     }
 
     public override void _Ready()
@@ -70,11 +62,19 @@ public partial class Map : Node2D
     /// </summary>
     public void GenerateMap()
     {
-        Dictionary<string, float[,]> noiseMaps = GenerateNoiseMaps(settings.WorldSize, settings.WorldSize, Vector2I.Zero);
+        Vector2I size = settings.worldSize;
+        Vector2I offset = Vector2I.Zero;
+        GradientMapGenerator GradientMapGenerator = new GradientMapGenerator();
+        NoiseMapGenerator NoiseMapGenerator = new NoiseMapGenerator(settings.elevationMapConfigs);
 
-        landScapeGenStep.SetNoiseMaps(noiseMaps);
-        landScapeGenStep.SetTotalSize(settings.WorldSize);
-        Tile[,] terrain = landScapeGenStep.Run(Vector2I.Zero, settings.WorldSize);
+        float[,] heightMap = NoiseMapGenerator.Run(offset, size);
+        float[,] temperatureMap = GradientMapGenerator.Run(offset, size, size, settings.trueCenter);
+
+        temperatureMap = GenerationUtil.GenerateTemperatureMap(size,temperatureMap,heightMap,settings);
+
+        GenStepTerrain genStepTerrain = new GenStepTerrain(heightMap,temperatureMap);
+
+        Tile[,] terrain = genStepTerrain.Run(offset, size);
 
         foreach (var tile in terrain)
         {
@@ -87,71 +87,7 @@ public partial class Map : Node2D
     /// </summary>
     public void GenerateChunk(Vector2 chunkPosition)
     {
-        GenerateNoiseMaps(default, settings.WorldSize, chunkPosition);
-    }
-
-    /// <summary>
-    /// generates the moisture, elevation and temperature maps
-    /// which then is passed to generationSteps
-    /// </summary>
-    private Dictionary<string, float[,]> GenerateNoiseMaps(Vector2I size, Vector2I TotalSize, Vector2 offset)
-    {
-        Dictionary<string, float[,]> noiseMaps = new Dictionary<string, float[,]>();
-
-        elevationGenerator.SetSettings(settings.ElevationSettings);
-        temperatureGenerator.SetSettings(settings.TemperatureSettings);
-        moistureGenerator.SetSettings(settings.MoistureGenSettings);
-
-        elevationGenerator.SetTotalSize(TotalSize);
-        noiseMaps.Add("elevation", elevationGenerator.Run(offset, size));
-
-        GD.Print("Temp");
-        NoiseGenerator heatMap = new NoiseGenerator();
-        heatMap.SetTotalSize(TotalSize);
-        heatMap.SetSettings(settings.TemperatureSettings);
-
-        temperatureGenerator.SetTotalSize(TotalSize);
-        temperatureGenerator.HeatMap = new LayerConfig
-        {
-            LayerEffect = 1f,
-            ValueMap = heatMap.Run(offset + new Vector2(100,100), size),
-            Squared = true,
-            Positive = false
-        };
-
-        noiseMaps.Add("temperature", temperatureGenerator.Run(offset, size));
-
-        GD.Print("moist");
-        NoiseGenerator rainFallMap = new NoiseGenerator();
-        rainFallMap.SetTotalSize(TotalSize);
-        rainFallMap.SetSettings(settings.MoistureGenSettings);
-
-        moistureGenerator.Elevation = new LayerConfig
-        {
-            LayerEffect = 0.8f,
-            ValueMap = noiseMaps["elevation"],
-            Squared = true,
-            Positive = false
-        };
-        moistureGenerator.Temperature = new LayerConfig
-        {
-            LayerEffect = 0.1f,
-            ValueMap = noiseMaps["temperature"],
-            Squared = true,
-            Positive = false
-        };
-        moistureGenerator.Rainfall = new LayerConfig
-        {
-            LayerEffect = 0.5f,
-            ValueMap = rainFallMap.Run(offset + new Vector2(100, 100), size),
-            Squared = false,
-            Positive = true
-        };
-
-        moistureGenerator.SetTotalSize(TotalSize);
-        noiseMaps.Add("moisture", moistureGenerator.Run(offset, size));
-
-        return noiseMaps;
+        // GenerateNoiseMaps(default, settings.WorldSize, chunkPosition);
     }
 
 }

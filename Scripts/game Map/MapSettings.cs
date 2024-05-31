@@ -4,96 +4,71 @@ using Godot;
 using Newtonsoft.Json;
 
 /// <summary>
-/// defines settings for the games map
+/// defines settings for configuring how the world map is generated
 /// </summary>
 public class MapSettings
 {
-    [JsonProperty]
-    private Vector2I worldSize;
-    [JsonProperty]
-    private bool infiniteWorld;
+    // general world settings
+    public Vector2I worldSize { get; set; }
 
+    public bool infiniteWorld { get; set; }
 
-    [JsonProperty]
-    private GeneratorConfigs elevationSettings;
+    [JsonIgnore]
+    public bool trueCenter { get; set; }
 
-    [JsonProperty]
-    private GeneratorConfigs temperatureSettings;
+    [JsonIgnore]
+    public NoiseMapConfigs elevationMapConfigs { get; set; }
 
-
-    [JsonProperty]
-    private GeneratorConfigs moistureGenSettings;
+    /// <summary>
+    /// highest temperature at the equator, used to offset temperature
+    /// to be closer to it
+    /// </summary>
+    public float baseTemperature { get; set; }
+    /// <summary>
+    /// value used to determine how big of a decrease a value has the 
+    /// further awy form the center it is
+    /// </summary>
+    public float equatorBias { get; set; }
+    /// <summary>
+    /// incremental step at which temperature should be lost
+    /// </summary>
+    public float temperatureHeight { get; set; }
+    /// <summary>
+    /// the amount of temperature that should be lost 
+    /// for each height step
+    /// </summary>
+    public float temperatureHeightLoss { get; set; }
 
     public MapSettings() { }
 
-    [JsonIgnore]
-    public Vector2I WorldSize { get => worldSize; set => worldSize = value; }
-    [JsonIgnore]
-    public bool InfiniteWorld { get => infiniteWorld; set => infiniteWorld = value; }
-    [JsonIgnore]
-    public GeneratorConfigs ElevationSettings { get => elevationSettings; set => elevationSettings = value; }
-    [JsonIgnore]
-    public GeneratorConfigs TemperatureSettings { get => temperatureSettings; set => temperatureSettings = value; }
-    [JsonIgnore]
-    public GeneratorConfigs MoistureGenSettings { get => moistureGenSettings; set => moistureGenSettings = value; }
-
+    /// <summary>
+    /// sets maps settings to default
+    /// </summary>
     public void DefaultSettings()
     {
-        InfiniteWorld = true;
         worldSize = new Vector2I(100, 100);
 
-        elevationSettings = new GeneratorConfigs() 
+        infiniteWorld = true;
+        trueCenter = true;
+
+        elevationMapConfigs = new NoiseMapConfigs
         {
-            BaseValue = 0,
-            NoiseConfigs = new NoiseConfigs
-            {
-                Seed = 0,
-                Octaves = 5,
-                Frequency = 1f,
-                Lacunarity = 4f,
-                Gain = 0.2f,
-                NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
-                FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
-                NoiseOffset = Vector2.Zero,
-                Normalized = false,
-            }
+            Scale = 90,
+            Seed = 0,
+            Octaves = 5,
+            Frequency = 3f,
+            Lacunarity = 3f,
+            Gain = 0.4f,
+            NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
+            FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
+            NoiseOffset = Vector2.Zero,
+            Normalized = false,
         };
 
-        temperatureSettings = new GeneratorConfigs()
-        {
-            TrueCenter = false,
-            BaseValue = 0.0f,
-            NoiseConfigs = new NoiseConfigs
-            {
-                Seed = 0,
-                Octaves = 2,
-                Frequency = 3f,
-                Lacunarity = 3f,
-                Gain = 0.3f,
-                NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
-                FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
-                NoiseOffset = Vector2.Zero,
-                Normalized = false,
-            }
-        };
-
-        moistureGenSettings = new GeneratorConfigs
-        {
-            BaseValue = 0,
-            NoiseConfigs = new NoiseConfigs
-            {
-                Seed = 0,
-                Octaves = 5,
-                Frequency = 2.5f,
-                Lacunarity = 3.0f,
-                Gain = 0.4f,
-                NoiseType = FastNoiseLite.NoiseTypeEnum.Perlin,
-                FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
-                NoiseOffset = Vector2.Zero,
-                Normalized = true,
-            },
-
-        };
+        baseTemperature = .5f;
+        equatorBias = 1.5f;
+        temperatureHeight = .2f;
+        temperatureHeightLoss = .5f;
     }
 
 }

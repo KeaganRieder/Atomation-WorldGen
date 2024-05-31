@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using Godot;
 
 /// <summary>
-/// This is the first generation step when it comes to creating the world
-/// this step handles creating the maps landscape
+/// defines the step in generation which handles teh creation of the games
+/// terrain
 /// </summary>
-public class LandScapeGenStep : Generator<Tile>
+public class GenStepTerrain : Generator<Tile>
 {
     private float[,] elevation;
-    private float[,] temperature; //temperature is generally between -.2 -.8
+    private float[,] temperatureMap; //temperature is generally between -.2 -.8
     private float[,] moisture; // moisture is normally between -.2 and .8
 
     private float hotClimate = 0.7f;
@@ -25,21 +25,18 @@ public class LandScapeGenStep : Generator<Tile>
     private float temperate = -0.0f;
     private float warm = .2f;
     private float hot = .4f;
-    private float hotest = .6f;
+    private float hottest = .6f;
 
-
-    public LandScapeGenStep()
+    public GenStepTerrain(float[,] elevationMap = default, float[,] temperatureMap = default, float[,] moistureMap = default)
     {
-        elevation = null;
-        temperature = null;
-        moisture = null;
+       configure(elevationMap, temperatureMap, moistureMap);
     }
 
-    public void SetNoiseMaps(Dictionary<string, float[,]> noiseMaps)
+    public void configure(float[,] elevation = default, float[,] temperature = default, float[,] moisture = default)
     {
-        elevation = noiseMaps["elevation"];
-        temperature = noiseMaps["temperature"];
-        moisture = noiseMaps["moisture"];
+        this.elevation = elevation;
+        this.temperatureMap = temperature;
+        this.moisture = moisture;
     }
 
     public override void SetSize(Vector2I size = default)
@@ -47,10 +44,10 @@ public class LandScapeGenStep : Generator<Tile>
         base.SetSize(size);
     }
 
-    protected override bool Validate()
+    protected bool Validate()
     {
 
-        if (elevation == null || temperature == null || moisture == null)
+        if (elevation == null || temperatureMap == null || moisture == null)
         {
             GD.PushError("Can't Generate landscape for required layers haven't been set");
             return false;
@@ -60,35 +57,44 @@ public class LandScapeGenStep : Generator<Tile>
 
     public override Tile[,] Run(Vector2 offset = default, Vector2I size = default)
     {
-        if (!Validate())
-        {
-            return default;
-        }
+        // if (!Validate())
+        // {
+        //     return default;
+        // }
+        float min = 10;
+        float max = -10;
 
         SetSize(size);
         SetOffset(offset);
-        Tile[,] terrain = new Tile[genSize.X, genSize.Y];
+        Tile[,] terrain = new Tile[size.X, size.Y];
 
-        for (int x = 0; x < genSize.X; x++)
+        for (int x = 0; x < size.X; x++)
         {
-            for (int y = 0; y < genSize.Y; y++)
+            for (int y = 0; y < size.Y; y++)
             {
                 Vector2 tilePosition = new Vector2(x + offset.X, y + offset.Y) * Map.CELL_SIZE;
                 Tile tile = new Tile(tilePosition);
 
                 // string biome = SelectBiome(x, y);
 
+                if (temperatureMap[x,y] < min)
+                {
+                    min = temperatureMap[x,y];
+                }
+                if (temperatureMap[x,y] > max)
+                {
+                    max = temperatureMap[x,y];
+                }
                 // tile.SetColor(FormLandScape(x, y));
-                tile.SetColor(new Color(moisture[x,y],moisture[x,y],moisture[x,y]));
 
-                // tile.SetColor(GetTemperature(x, y));
+                tile.SetColor(GetTemperature(x, y));
 
                 // tile.SetColor(GetBiomeColor(biome));
 
                 terrain[x, y] = tile;
             }
         }
-
+        GD.Print($"Min: {min} Max:{max}");
         return terrain;
     }
 
@@ -117,36 +123,41 @@ public class LandScapeGenStep : Generator<Tile>
         //water
         return Colors.Black;
     }
-    // -0.3 and 1.5
+
     private Color GetTemperature(int x, int y)
     {
 
-        if (temperature[x, y] > hotest)
+        if (temperatureMap[x, y] > hottest)
         {
             return Colors.Red;
         }
-        if (temperature[x, y] > hot)
+        if (temperatureMap[x, y] > hot)
         {
             return Colors.Orange;
         }
-         if (temperature[x, y] > warm)
+        if (temperatureMap[x, y] > warm)
         {
             return Colors.Yellow;
         }
-        if (temperature[x, y] > temperate)
+        if (temperatureMap[x, y] > temperate)
         {
             return Colors.Green;
         }
-        if (temperature[x, y] > cold)
+        if (temperatureMap[x, y] > cold)
         {
             return Colors.Blue;
         }
-        if (temperature[x, y] > coldest)
+        if (temperatureMap[x, y] > coldest)
         {
             return Colors.DarkBlue;
         }
 
         return Colors.Purple;
+    }
+
+    private Color FromMoisture(int x, int y)
+    {
+        return Colors.Red;
     }
 
     private Color GetBiomeColor(string biome)
@@ -176,7 +187,7 @@ public class LandScapeGenStep : Generator<Tile>
     private string SelectBiome(int x, int y)
     {
         /// moisture is normally between -.2 and .8
-        if (temperature[x, y] > hotClimate)
+        if (temperatureMap[x, y] > hotClimate)
         {
             if (moisture[x, y] > 0.7)
             {
@@ -188,7 +199,7 @@ public class LandScapeGenStep : Generator<Tile>
             }
             return "Desert";
         }
-        else if (temperature[x, y] > warmTemperateClimate)
+        else if (temperatureMap[x, y] > warmTemperateClimate)
         {
             if (moisture[x, y] > 0.7)
             {
@@ -200,7 +211,7 @@ public class LandScapeGenStep : Generator<Tile>
             }
             return "Desert";
         }
-        else if (temperature[x, y] > temperateClimate)
+        else if (temperatureMap[x, y] > temperateClimate)
         {
             if (moisture[x, y] > 0.7)
             {
@@ -221,5 +232,4 @@ public class LandScapeGenStep : Generator<Tile>
             return "Tundra";
         }
     }
-
 }

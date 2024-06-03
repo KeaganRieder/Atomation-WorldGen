@@ -17,9 +17,10 @@ public class GenStepTerrain : Generator<Tile>
     private float warmTemperateClimate = 0.5f;
     private float temperateClimate = 0.3f;
 
-    private float waterLevel = -0.1f;
+    private float waterLevel = -0.2f;
     private float mountainSize = 0.4f;
 
+    //temperature things
     private float coldest = -0.6f;
     private float cold = -0.3f;
     private float temperate = -0.0f;
@@ -27,9 +28,16 @@ public class GenStepTerrain : Generator<Tile>
     private float hot = .4f;
     private float hottest = .6f;
 
+    //moisture thing
+    private float dryest = -0.47f;
+    private float dryer = -0.25f;
+    private float dry = 0.2f;
+    private float wet = 0.4f;
+    private float wetter = 0.6f;
+
     public GenStepTerrain(float[,] elevationMap = default, float[,] temperatureMap = default, float[,] moistureMap = default)
     {
-       configure(elevationMap, temperatureMap, moistureMap);
+        configure(elevationMap, temperatureMap, moistureMap);
     }
 
     public void configure(float[,] elevation = default, float[,] temperature = default, float[,] moisture = default)
@@ -46,7 +54,6 @@ public class GenStepTerrain : Generator<Tile>
 
     protected bool Validate()
     {
-
         if (elevation == null || temperatureMap == null || moisture == null)
         {
             GD.PushError("Can't Generate landscape for required layers haven't been set");
@@ -57,10 +64,10 @@ public class GenStepTerrain : Generator<Tile>
 
     public override Tile[,] Run(Vector2 offset = default, Vector2I size = default)
     {
-        // if (!Validate())
-        // {
-        //     return default;
-        // }
+        if (!Validate())
+        {
+            return default;
+        }
         float min = 10;
         float max = -10;
 
@@ -77,16 +84,16 @@ public class GenStepTerrain : Generator<Tile>
 
                 // string biome = SelectBiome(x, y);
 
-                if (temperatureMap[x,y] < min)
+                if (temperatureMap[x, y] < min)
                 {
-                    min = temperatureMap[x,y];
+                    min = temperatureMap[x, y];
                 }
-                if (temperatureMap[x,y] > max)
+                if (temperatureMap[x, y] > max)
                 {
-                    max = temperatureMap[x,y];
+                    max = temperatureMap[x, y];
                 }
                 // tile.SetColor(FormLandScape(x, y));
-
+                // tile.SetColor(FromMoisture(x, y));
                 tile.SetColor(GetTemperature(x, y));
 
                 // tile.SetColor(GetBiomeColor(biome));
@@ -157,7 +164,30 @@ public class GenStepTerrain : Generator<Tile>
 
     private Color FromMoisture(int x, int y)
     {
-        return Colors.Red;
+        if (moisture[x, y] < dryest)
+        {
+            return Colors.Orange;
+        }
+        else if (moisture[x, y] < dryer)
+        {
+            return Colors.Yellow;
+        }
+        else if (moisture[x, y] < dry)
+        {
+            return Colors.Green;
+        }
+        else if (moisture[x, y] < wet)
+        {
+            return Colors.Cyan;
+        }
+        else if (moisture[x, y] < wetter)
+        {
+            return Colors.Blue;
+        }
+        else
+        {
+            return Colors.DarkBlue;
+        }
     }
 
     private Color GetBiomeColor(string biome)

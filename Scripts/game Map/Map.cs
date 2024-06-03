@@ -70,9 +70,14 @@ public partial class Map : Node2D
         float[,] heightMap = NoiseMapGenerator.Run(offset, size);
         float[,] temperatureMap = GradientMapGenerator.Run(offset, size, size, settings.trueCenter);
 
-        temperatureMap = GenerationUtil.GenerateTemperatureMap(size,temperatureMap,heightMap,settings);
+        temperatureMap = GenerationUtil.GenerateTemperatureMap(size, temperatureMap, heightMap, settings);
 
-        GenStepTerrain genStepTerrain = new GenStepTerrain(heightMap,temperatureMap);
+        NoiseMapGenerator = new NoiseMapGenerator(settings.rainfallMapConfigs);
+        float[,] rainfallMap = NoiseMapGenerator.Run(offset, size);
+
+        float[,] moistureMap = GenerationUtil.GenerateMoisture(size, heightMap, rainfallMap, temperatureMap, settings);
+
+        GenStepTerrain genStepTerrain = new GenStepTerrain(heightMap, temperatureMap, moistureMap);
 
         Tile[,] terrain = genStepTerrain.Run(offset, size);
 

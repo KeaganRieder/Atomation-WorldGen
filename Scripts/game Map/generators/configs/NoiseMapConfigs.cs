@@ -9,28 +9,24 @@ using Godot;
 public class NoiseMapConfigs
 {
     private FastNoiseLite fastNoiseLite;
-
     private int seed;
-    /// <summary>
-    /// zooms in or out the noise. lower values lead to more zoom out, while higher
-    /// leads to more zoomed in
-    /// </summary>
     private float scale;
     private float frequency;
     private float lacunarity;
     private float gain;
     private int octaves;
     private Vector2 noiseOffset;
+    private bool normalize;
+
+    public NoiseMapConfigs() { fastNoiseLite = new FastNoiseLite(); }
 
     /// <summary>
-    /// decides if value generated should be between 0 - 1 (normalized = true) 
-    /// or -1 - 1 (normalized != true) 
+    /// decides the range of values generated
+    /// true = 0 - 1
+    /// false -1 to 1
     /// </summary>
-    private bool normalize;
-    
-    public NoiseMapConfigs() { fastNoiseLite = new FastNoiseLite();}
-
     public bool Normalized { get => normalize; set => normalize = value; }
+    
     public int Seed
     {
         get => seed;
@@ -40,6 +36,10 @@ public class NoiseMapConfigs
             fastNoiseLite.Seed = seed;
         }
     }
+    /// <summary>
+    /// zooms in or out the noise. lower values lead to more zoom out, while higher
+    /// leads to more zoomed in
+    /// </summary>
     public float Scale { get => scale; set => scale = value; }
     public float Frequency
     {
@@ -50,7 +50,10 @@ public class NoiseMapConfigs
             fastNoiseLite.Frequency = value;
         }
     }
-
+    /// <summary>
+    /// Frequency multiplier between subsequent octaves. 
+    /// Increasing this value results in higher octaves producing noise with finer details and a rougher appearance. 
+    /// </summary>
     public float Lacunarity
     {
         get => lacunarity;
@@ -60,6 +63,12 @@ public class NoiseMapConfigs
             fastNoiseLite.FractalLacunarity = lacunarity;
         }
     }
+
+    /// <summary>
+    /// Determines the strength of each subsequent layer of noise in fractal noise.
+    /// A low value places more emphasis on the lower frequency base layers,
+    /// while a high value puts more emphasis on the higher frequency layers.
+    /// </summary>
     public float Gain
     {
         get => gain;
@@ -70,6 +79,9 @@ public class NoiseMapConfigs
         }
     }
 
+    /// <summary>
+    /// how many noise layers there are
+    /// </summary>
     public int Octaves
     {
         get => octaves;
@@ -80,6 +92,9 @@ public class NoiseMapConfigs
         }
     }
 
+    /// <summary>
+    /// offset of where generated noise is pulled from
+    /// </summary>
     public Vector2 NoiseOffset
     {
         get => noiseOffset;

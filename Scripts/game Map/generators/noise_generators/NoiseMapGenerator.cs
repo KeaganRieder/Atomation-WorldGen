@@ -36,13 +36,13 @@ public class NoiseMapGenerator : Generator<float>
         {
             for (int y = 0; y < size.Y; y++)
             {
-                float sampleX = (x / configs.Scale);// * configs.Frequency;
-                float sampleY = (y / configs.Scale);//* configs.Frequency;
+                float sampleX = x / configs.Scale;
+                float sampleY = y / configs.Scale;
                 float noise = noiseGenerator.GetNoise2D(sampleX, sampleY);
 
                 if (configs.Normalized)
                 {
-                    noiseMap[x, y] = (noise + 1) / 2; //make between 0-1
+                    noiseMap[x, y] = Mathf.InverseLerp(-1,1,noise);//make between 0-1
                 }
                 else
                 {
@@ -53,5 +53,6 @@ public class NoiseMapGenerator : Generator<float>
         }
         return noiseMap;
     }
+
 
 }

@@ -13,11 +13,20 @@ public class MapSettings
 
     public bool infiniteWorld { get; set; }
 
+    public int seed { get; set; }
+
     [JsonIgnore]
     public bool trueCenter { get; set; }
 
     [JsonIgnore]
+    public float noiseMapScale { get; set; }
+
+    [JsonIgnore]
     public NoiseMapConfigs elevationMapConfigs { get; set; }
+    [JsonIgnore]
+    public NoiseMapConfigs rainfallMapConfigs { get; set; }
+
+    public float baseMoisture { get; set; }
 
     /// <summary>
     /// highest temperature at the equator, used to offset temperature
@@ -49,15 +58,17 @@ public class MapSettings
         worldSize = new Vector2I(100, 100);
 
         infiniteWorld = true;
-        trueCenter = true;
+        trueCenter = false;
 
+        noiseMapScale = 1;
+        seed = 0;
         elevationMapConfigs = new NoiseMapConfigs
         {
-            Scale = 90,
-            Seed = 0,
-            Octaves = 5,
-            Frequency = 3f,
-            Lacunarity = 3f,
+            Scale = noiseMapScale,
+            Seed = seed,
+            Octaves = 6,
+            Frequency = 0.01f,
+            Lacunarity = 3f, 
             Gain = 0.4f,
             NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
             FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
@@ -65,10 +76,25 @@ public class MapSettings
             Normalized = false,
         };
 
-        baseTemperature = .5f;
-        equatorBias = 1.5f;
-        temperatureHeight = .2f;
-        temperatureHeightLoss = .5f;
-    }
+       
+        rainfallMapConfigs = new NoiseMapConfigs
+        {
+            Scale = noiseMapScale,
+            Seed = seed,
+            Octaves = 5,
+            Frequency = 0.03f,
+            Lacunarity = 2f, 
+            Gain = 0.4f,
+            NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
+            FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
+            NoiseOffset = Vector2.Zero,
+            Normalized = false,
+        };
 
+        baseMoisture = 0f;
+        baseTemperature = 0.7f;
+        // equatorBias = 2f;
+        // temperatureHeight = .01f;
+        // temperatureHeightLoss = .01f;
+    }
 }

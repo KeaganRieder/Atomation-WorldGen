@@ -12,10 +12,10 @@ public static class GenerationUtil
     {
         float[,] temperatureMap = new float[size.X, size.Y];
 
-        if (settings.temperatureHeight == 0)
-        {
-            settings.temperatureHeight = 1;
-        }
+        // if (settings.temperatureHeight == 0)
+        // {
+        //     settings.temperatureHeight = 1;
+        // }
 
         for (int x = 0; x < size.X; x++)
         {

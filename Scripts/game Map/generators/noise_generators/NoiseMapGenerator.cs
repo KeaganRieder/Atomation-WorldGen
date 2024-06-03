@@ -48,7 +48,6 @@ public class NoiseMapGenerator : Generator<float>
                 {
                     noiseMap[x, y] = noise;
                 }
-
             }
         }
         return noiseMap;

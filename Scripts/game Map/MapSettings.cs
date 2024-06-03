@@ -33,20 +33,20 @@ public class MapSettings
     /// to be closer to it
     /// </summary>
     public float baseTemperature { get; set; }
-    /// <summary>
-    /// value used to determine how big of a decrease a value has the 
-    /// further awy form the center it is
-    /// </summary>
-    public float equatorBias { get; set; }
-    /// <summary>
-    /// incremental step at which temperature should be lost
-    /// </summary>
-    public float temperatureHeight { get; set; }
-    /// <summary>
-    /// the amount of temperature that should be lost 
-    /// for each height step
-    /// </summary>
-    public float temperatureHeightLoss { get; set; }
+    // /// <summary>
+    // /// value used to determine how big of a decrease a value has the 
+    // /// further awy form the center it is
+    // /// </summary>
+    // public float equatorBias { get; set; }
+    // /// <summary>
+    // /// incremental step at which temperature should be lost
+    // /// </summary>
+    // public float temperatureHeight { get; set; }
+    // /// <summary>
+    // /// the amount of temperature that should be lost 
+    // /// for each height step
+    // /// </summary>
+    // public float temperatureHeightLoss { get; set; }
 
     public MapSettings() { }
 
@@ -75,7 +75,6 @@ public class MapSettings
             NoiseOffset = Vector2.Zero,
             Normalized = false,
         };
-
        
         rainfallMapConfigs = new NoiseMapConfigs
         {
@@ -92,7 +91,7 @@ public class MapSettings
         };
 
         baseMoisture = 0f;
-        baseTemperature = 0.7f;
+        baseTemperature = 0.8f;
         // equatorBias = 2f;
         // temperatureHeight = .01f;
         // temperatureHeightLoss = .01f;

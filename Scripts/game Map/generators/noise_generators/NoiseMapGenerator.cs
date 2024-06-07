@@ -2,9 +2,8 @@ namespace Atomation.GameMap;
 
 using Godot;
 
-public class NoiseMapGenerator : Generator<float>
+public class NoiseMapGenerator : NoiseGenerators
 {
-    private float[,] noiseMap;
     private NoiseMapConfigs configs;
 
     public NoiseMapGenerator(NoiseMapConfigs settings = null)
@@ -14,10 +13,10 @@ public class NoiseMapGenerator : Generator<float>
 
     public void Configure(NoiseMapConfigs settings)
     {
-        this.configs = settings;
+        configs = settings;
     }
 
-    public override float[,] Run(Vector2 offset = default, Vector2I size = default)
+    public override float[,] Generate(Vector2 offset = default, Vector2I size = default)
     {
         if (configs == null)
         {
@@ -36,13 +35,13 @@ public class NoiseMapGenerator : Generator<float>
         {
             for (int y = 0; y < size.Y; y++)
             {
-                float sampleX = x / configs.Scale;
+                float sampleX = x / configs.Scale; //maybe make this be / totalSize
                 float sampleY = y / configs.Scale;
                 float noise = noiseGenerator.GetNoise2D(sampleX, sampleY);
 
                 if (configs.Normalized)
                 {
-                    noiseMap[x, y] = Mathf.InverseLerp(-1,1,noise);//make between 0-1
+                    noiseMap[x, y] = Mathf.InverseLerp(-1, 1, noise);//make between 0-1
                 }
                 else
                 {

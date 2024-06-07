@@ -11,36 +11,37 @@ public class ChunkHandler
 {
     private List<Vector2I> lastLoadedChunks;
     private Dictionary<Vector2, Chunk> chunks;
+    private Node2D map;
 
-    public ChunkHandler()
+    public ChunkHandler(Node2D map)//maybe make this contain a generator
     {
+        this.map = map;
         chunks = new Dictionary<Vector2, Chunk>();
         lastLoadedChunks = new List<Vector2I>();
     }
 
     /// <summary> adds chunk at given position </summary>
-    public void AddChunk(Vector2 cord, Chunk chunk)
+    public void AddChunk(Vector2 chunkCord, Chunk chunk)
     {
-        cord = cord.WorldToChunk();
-
-        if (!HasChunk(cord))
+        if (HasChunk(chunkCord))
         {
-            GD.PushError($"chunk array already contains a chunk at {cord}");
+            GD.PushError($"chunk array already contains a chunk at {chunkCord}");
+            return;
         }
-        chunks[cord] = chunk;
+        chunks[chunkCord] = chunk;
+        map.AddChild(chunk);
+
     }
 
     /// <summary> gets chunk at given position </summary>
-    public Chunk GetChunk(Vector2 cord)
+    public Chunk GetChunk(Vector2 chunkCord)
     {
-        cord = cord.WorldToChunk();
-
-        if (!HasChunk(cord))
+        if (!HasChunk(chunkCord))
         {
             return null;
         }
 
-        return chunks[cord];
+        return chunks[chunkCord];
     }
 
     /// <summary> returns the positions of the chunks as a list</summary>
@@ -66,24 +67,20 @@ public class ChunkHandler
     }
 
     /// <summary> checks if chunk is at given cord  </summary>
-    public bool HasChunk(Vector2 cord)
-    {
-        cord = cord.WorldToChunk();
-
-        return chunks.ContainsKey(cord);
+    public bool HasChunk(Vector2 chunkCord)
+    {        
+        return chunks.ContainsKey(chunkCord);
     }
 
     /// <summary> erase chunk at given position </summary>
-    public void RemoveChunk(Vector2 cord)
+    public void RemoveChunk(Vector2 chunkCord)
     {
-        cord = cord.WorldToChunk();
-
-        if (!HasChunk(cord))
+        if (!HasChunk(chunkCord))
         {
             return;
         }
-        chunks[cord].Clear();
-        chunks.Remove(cord);
+        chunks[chunkCord].Clear();
+        chunks.Remove(chunkCord);
     }
 
     /// <summary> clears all chunks from the map </summary>
@@ -97,11 +94,9 @@ public class ChunkHandler
     }
 
     /// <summary> erase chunk at given position </summary>
-    public void EraseChunk(Vector2 cord)
+    public void EraseChunk(Vector2 chunkCord)
     {
-        cord = cord.WorldToChunk();
-
-        if (!HasChunk(cord))
+        if (!HasChunk(chunkCord))
         {
             return;
         }
@@ -110,17 +105,16 @@ public class ChunkHandler
     /// <summary> generates chunk at given position </summary>
     private void GenerateChunk(Vector2 cord)
     {
-        cord = cord.WorldToChunk();
+        // GD.PushError("Chunk Gen Not Implemented");
         Chunk generatedChunk = new Chunk(cord);
-        Map.Instance.GenerateChunk(cord);
+        // Map.Instance.GetGenerator();//(cord);
         AddChunk(cord, generatedChunk);
     }
 
     /// <summary> loads chunk at given position </summary>
     public void LoadChunk(Vector2 cord)
     {
-        cord = cord.WorldToChunk();
-
+        GD.Print($"attempting to load {cord}");
         if (!lastLoadedChunks.Contains((Vector2I)cord))
         {
             lastLoadedChunks.Add((Vector2I)cord);
@@ -135,13 +129,14 @@ public class ChunkHandler
         {
             return;
         }
+
         chunks[cord].Load();
     }
 
     /// <summary> unloads chunk at given position </summary>
     public void UnloadChunk(Vector2 cord)
     {
-        cord = cord.WorldToChunk();
+        GD.Print($"attempting to unload {cord}");
 
         if (lastLoadedChunks.Contains((Vector2I)cord))
         {
@@ -157,6 +152,7 @@ public class ChunkHandler
         {
             return;
         }
+        GD.Print($"Unloading chunks");
         chunks[cord].Unload();
     }
 }

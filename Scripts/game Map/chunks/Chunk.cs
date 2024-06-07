@@ -1,11 +1,13 @@
 namespace Atomation.GameMap;
 
 using System;
+using Atomation.Resources;
 using Godot;
 
 public partial class Chunk : Node2D
 {
-    public const int CHUNK_SIZE = 16;
+    public const int CHUNK_SIZE = 32;
+    private Sprite2D graphic;
 
     Vector2 chunkPosition;
 
@@ -20,15 +22,19 @@ public partial class Chunk : Node2D
 
     public Chunk(Vector2 position)
     {
-        SetPosition(position);
+        Name = $"chunk:{position*CHUNK_SIZE*Map.CELL_SIZE}";
+        SetPosition(position*CHUNK_SIZE*Map.CELL_SIZE);
+        graphic = new Sprite2D();
 
-        // chunkArea = new Rect2I();
-
+        RandomNumberGenerator rng = new RandomNumberGenerator();
+        graphic.Texture = FileUtility.ReadTexture("Undefined", new Vector2I(CHUNK_SIZE*Map.CELL_SIZE, CHUNK_SIZE*Map.CELL_SIZE));
+        graphic.Modulate = new Color(rng.Randf(),rng.Randf(),rng.Randf());
+        AddChild(graphic);
         chunkGrid = new Grid(false);
 
         // Unload();
     }
-    
+
     /// <summary>
     /// clears chunk
     /// </summary>
@@ -46,33 +52,38 @@ public partial class Chunk : Node2D
         Position = cord;
     }
 
-    /// <summary> 
-    /// sets terrain at given position
-    /// </summary>
-    public void SetTerrain(Vector2 cord, Sprite2D terrain)
-    {
-        chunkGrid.SetValue(cord, terrain, 0);
-    }
+    // /// <summary> 
+    // /// sets terrain at given position
+    // /// </summary>
+    // public void SetTerrain(Vector2 cord, Sprite2D terrain)
+    // {
+    //     if (terrain != null)
+    //     {
+    //         AddChild(terrain);
 
-    /// <summary> 
-    /// gets terrain at given position 
-    /// </summary>
-    public Sprite2D GetTerrain(Vector2 cord)
-    {
-        Sprite2D terrain = null;
+    //     }
+    //     chunkGrid.SetValue(cord, terrain, 0);
+    // }
 
-        object obj = chunkGrid.GetValue(cord, 0);
-        if (obj is Sprite2D)
-        {
-            terrain = obj as Sprite2D;
-        }
-        else
-        {
-            throw new InvalidOperationException("Object is not terrain");
-        }
+    // /// <summary> 
+    // /// gets terrain at given position 
+    // /// </summary>
+    // public Sprite2D GetTerrain(Vector2 cord)
+    // {
+    //     Sprite2D terrain = null;
 
-        return terrain;
-    }
+    //     object obj = chunkGrid.GetValue(cord, 0);
+    //     if (obj is Sprite2D)
+    //     {
+    //         terrain = obj as Sprite2D;
+    //     }
+    //     else
+    //     {
+    //         throw new InvalidOperationException("Object is not terrain");
+    //     }
+
+    //     return terrain;
+    // }
 
     /// <summary> 
     /// unloads chunk 

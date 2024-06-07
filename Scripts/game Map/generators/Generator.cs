@@ -3,12 +3,11 @@ namespace Atomation.GameMap;
 using Godot;
 
 /// <summary>
-/// base class for all things related to generation
+/// base class for all generators in the game
 /// </summary>
 public abstract class Generator<ValueType>
 {
-
-    protected Vector2I size;
+    protected Vector2I genSize;
     protected Vector2I totalSize;
 
     protected Vector2 offset;
@@ -35,10 +34,10 @@ public abstract class Generator<ValueType>
     {
         if (size == default)
         {
-            this.size = new Vector2I(Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE);
+            genSize = new Vector2I(Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE);
             return;
         }
-        this.size = size;
+        genSize = size;
     }
 
     /// <summary> 
@@ -46,9 +45,10 @@ public abstract class Generator<ValueType>
     /// </summary>
     public virtual void SetTotalSize(Vector2I size = default)
     {
+        // set to be the given gen size
         if (size == default)
         {
-            totalSize = Vector2I.One;
+            totalSize = this.genSize;
             return;
         }
 
@@ -57,15 +57,4 @@ public abstract class Generator<ValueType>
 
         totalSize = size;
     }
-
-    /// <summary> 
-    /// runs the generator and returns the outcome
-    /// </summary>
-    public virtual ValueType[,] Run(Vector2 offset = default, Vector2I size = default)
-    {
-        GD.PushError("Generate is not implemented");
-        return default;
-    }
-
-
 }

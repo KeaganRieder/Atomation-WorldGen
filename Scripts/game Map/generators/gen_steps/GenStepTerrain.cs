@@ -1,41 +1,21 @@
 namespace Atomation.GameMap;
 
-using System.Collections.Generic;
 using Godot;
 
 /// <summary>
 /// defines the step in generation which handles teh creation of the games
 /// terrain
 /// </summary>
-public class GenStepTerrain : Generator<Tile>
+public class GenStepLandScape : Generator<object>
 {
     private float[,] elevation;
-    private float[,] temperature; //temperature is generally between -.2 -.8
-    private float[,] moisture; // moisture is normally between -.2 and .8
+    private float[,] temperature;
+    private float[,] moisture;
 
-    private float hotClimate = 0.7f;
-    private float warmTemperateClimate = 0.5f;
-    private float temperateClimate = 0.3f;
+    private float waterLevel = -0.23f;
+    private float mountainSize = 0.45f;
 
-    private float waterLevel = -0.2f;
-    private float mountainSize = 0.4f;
-
-    //temperature things
-    private float coldest = -0.6f;
-    private float cold = -0.3f;
-    private float temperate = -0.0f;
-    private float warm = .2f;
-    private float hot = .4f;
-    private float hottest = .6f;
-
-    //moisture thing
-    private float dryest = -0.47f;
-    private float dryer = -0.25f;
-    private float dry = 0.2f;
-    private float wet = 0.4f;
-    private float wetter = 0.6f;
-
-    public GenStepTerrain(float[,] elevationMap = default, float[,] temperatureMap = default, float[,] moistureMap = default)
+    public GenStepLandScape(float[,] elevationMap = default, float[,] temperatureMap = default, float[,] moistureMap = default)
     {
         configure(elevationMap, temperatureMap, moistureMap);
     }
@@ -45,11 +25,6 @@ public class GenStepTerrain : Generator<Tile>
         this.elevation = elevation;
         this.temperature = temperature;
         this.moisture = moisture;
-    }
-
-    public override void SetSize(Vector2I size = default)
-    {
-        base.SetSize(size);
     }
 
     protected bool Validate()
@@ -62,47 +37,36 @@ public class GenStepTerrain : Generator<Tile>
         return true;
     }
 
-    public override Tile[,] Run(Vector2 offset = default, Vector2I size = default)
+    public void Generate(out Tile[,] generatedTiles, Vector2 offset = default, Vector2I size = default)
     {
         if (!Validate())
         {
-            return default;
+            GD.PushError("Required maps haven't been set, as such can't generate");
+            generatedTiles = default;
+            return;
         }
-        float min = 10;
-        float max = -10;
 
         SetSize(size);
         SetOffset(offset);
-        Tile[,] terrain = new Tile[size.X, size.Y];
 
+        generatedTiles = new Tile[genSize.X, genSize.Y];
         for (int x = 0; x < size.X; x++)
         {
             for (int y = 0; y < size.Y; y++)
             {
-                Vector2 tilePosition = new Vector2(x + offset.X, y + offset.Y) * Map.CELL_SIZE;
-                Tile tile = new Tile(tilePosition);
+                Vector2 cord = new Vector2(x + offset.X, y + offset.Y) * Map.CELL_SIZE;
+                Tile tile = new Tile(cord);
+                tile.Moisture = moisture[x, y];
+                tile.Elevation = elevation[x, y];
+                tile.Temperature = temperature[x, y];
 
-                if (moisture[x, y] < min)
-                {
-                    min = moisture[x, y];
-                }
-                if (moisture[x, y] > max)
-                {
-                    max = moisture[x, y];
-                }
-
-                // tile.SetColor(FormLandScape(x, y));
-                // tile.SetColor(FromMoisture(x, y));
-                // tile.SetColor(GetTemperature(x, y));
-
-                tile.SetColor(SelectBiome(x, y));
-
-                terrain[x, y] = tile;
+                tile.SetColor(FormLandScape(x, y));
+                generatedTiles[x, y] = tile;
             }
         }
-        GD.Print($"Min: {min} Max:{max}");
-        return terrain;
     }
+
+
 
     private Color FormLandScape(int x, int y)
     {
@@ -111,80 +75,35 @@ public class GenStepTerrain : Generator<Tile>
         {
             if (elevation[x, y] > mountainSize + .1)
             {
-                return Colors.White;
+                return Colors.DarkGray;
 
             }
-            return Colors.LightGray;
+            return Colors.Gray;
         }
         //land
-        if (elevation[x, y] > waterLevel)
+        else if (elevation[x, y] > waterLevel)
         {
             if (elevation[x, y] > waterLevel + .1)
             {
-                return Colors.Gray;
+                return SelectBiome(x, y);
 
             }
-            return Colors.DarkGray;
+            return Colors.Black;
         }
         //water
-        return Colors.Black;
-    }
-    
-    private Color GetTemperature(int x, int y)
-    {
-
-        if (temperature[x, y] > hottest)
-        {
-            return Colors.Red;
-        }
-        if (temperature[x, y] > hot)
-        {
-            return Colors.Orange;
-        }
-        if (temperature[x, y] > warm)
-        {
-            return Colors.Yellow;
-        }
-        if (temperature[x, y] > temperate)
-        {
-            return Colors.Green;
-        }
-        if (temperature[x, y] > cold)
-        {
-            return Colors.Blue;
-        }
-        if (temperature[x, y] > coldest)
-        {
-            return Colors.DarkBlue;
-        }
-
-        return Colors.Purple;
-    }
-    private Color FromMoisture(int x, int y)
-    {
-        if (moisture[x, y] < dryest)
-        {
-            return Colors.Orange;
-        }
-        else if (moisture[x, y] < dryer)
-        {
-            return Colors.Yellow;
-        }
-        else if (moisture[x, y] < dry)
-        {
-            return Colors.Green;
-        }
-        else if (moisture[x, y] < wet)
-        {
-            return Colors.Cyan;
-        }
-        else if (moisture[x, y] < wetter)
-        {
-            return Colors.Blue;
-        }
         else
         {
-            return Colors.DarkBlue;
+            //deep water
+            if (elevation[x, y] > waterLevel - 0.12)
+            {
+                return Colors.Blue;
+            }
+            else
+            {
+                return Colors.DarkBlue;
+
+            }
+
         }
     }
 
@@ -193,7 +112,7 @@ public class GenStepTerrain : Generator<Tile>
     /// the cells temperature and moisture
     /// </summary>
     private Color SelectBiome(int x, int y)
-    { 
+    {
         //temp:-.8 to .6 moisture:-.8 to .8
         // cold
         if (temperature[x, y] < -.15f)
@@ -244,7 +163,7 @@ public class GenStepTerrain : Generator<Tile>
             else if (moisture[x, y] > 0.1)
             {
                 // grass land
-                return Colors.LightGreen; 
+                return Colors.LightGreen;
             }
             else if (moisture[x, y] > -.20)
             {
@@ -258,4 +177,5 @@ public class GenStepTerrain : Generator<Tile>
             }
         }
     }
+
 }

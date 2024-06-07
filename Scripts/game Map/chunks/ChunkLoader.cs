@@ -21,7 +21,7 @@ public class ChunkLoader
         updateDelay = 0;
 
         lastUpdate = 0;
-        lastPosition = Vector2I.Zero;
+        lastPosition = new Vector2I(-1, -1);
     }
 
     /// <summary>
@@ -30,15 +30,15 @@ public class ChunkLoader
     /// </summary>
     public void TryLoading()
     {
-        int currentTime = (int)Time.GetTicksMsec();
-        if (!(currentTime - lastUpdate > updateDelay))
-        {
-            return;
-        }
-        else
-        {
-            lastUpdate = currentTime;
-        }
+        // int currentTime = (int)Time.GetTicksMsec();
+        // if (!(currentTime - lastUpdate > updateDelay))
+        // {
+        //     return;
+        // }
+        // else
+        // {
+        //     lastUpdate = currentTime;
+        // }
 
         Vector2I actorPosition = GetActorPosition(); //do player get position at some point
 
@@ -46,11 +46,13 @@ public class ChunkLoader
         {
             return;
         }
-
         lastPosition = actorPosition;
         UpdateLoaded(actorPosition);
     }
 
+    /// <summary>
+    /// decides base on position wether to load or unload a chunk
+    /// </summary>
     private void UpdateLoaded(Vector2I position)
     {
         if (chunkHandler == null)
@@ -60,9 +62,9 @@ public class ChunkLoader
         }
 
         List<Vector2I> chunksToLoad = GetLoadedChunks(position);
-        
+
         UnloadChunks(chunksToLoad);
-        LoadChunks(chunksToLoad);        
+        LoadChunks(chunksToLoad);
     }
 
     /// <summary>
@@ -89,12 +91,13 @@ public class ChunkLoader
     {
         Vector2I actorPosition = actorCords;
         List<Vector2I> chunksToLoad = new List<Vector2I>();
-
-        for (int x = -renderDistance; x < actorPosition.X; x++)
+        for (int x = -renderDistance+1; x < renderDistance; x++)
         {
-            for (int y = -renderDistance; y < renderDistance; y++)
+            for (int y = -renderDistance+1; y < renderDistance; y++)
             {
-                chunksToLoad.Add(new Vector2I(actorPosition.X + x, actorPosition.Y + y));
+                Vector2I chunkCord = new Vector2I(actorPosition.X + x, actorPosition.Y + y);
+
+                chunksToLoad.Add(chunkCord);
             }
         }
 

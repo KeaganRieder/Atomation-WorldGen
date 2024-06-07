@@ -26,27 +26,33 @@ public partial class Map : Node2D
 
     private MapSettings settings;
 
+    private MapGenerator mapGenerator;
     private ChunkHandler chunkHandler;
     private ChunkLoader chunkLoader;
 
     public Map()
     {
-        chunkHandler = new ChunkHandler();
+        settings = new MapSettings();
+
+        mapGenerator = new MapGenerator(settings);
+        chunkHandler = new ChunkHandler(this);
         chunkLoader = new ChunkLoader(chunkHandler);
 
-        settings = new MapSettings();
         settings.DefaultSettings();
+
     }
 
     public override void _Ready()
     {
         base._Ready();
-        GenerateMap();
+        // GeneratePreview();
+        // AddChild(new Chunk(Vector2.Zero));
+        chunkLoader.TryLoading();
     }
 
     public override void _Process(double delta)
     {
-        chunkLoader.TryLoading();
+        // chunkLoader.TryLoading();
     }
 
     /// <summary> 
@@ -54,45 +60,24 @@ public partial class Map : Node2D
     /// </summary>
     public void ClearMap()
     {
-        chunkHandler.Clear();
+        //make delete kids  if in map preview
+        GD.PushError("clearing not implemented");
+        // chunkHandler.Clear();
+    }
+
+    public MapGenerator GetGenerator()
+    {
+        return mapGenerator;
     }
 
     /// <summary>
     /// generate the map 
+    /// need to figure out a different way of doing this maybe something 
+    /// like a map generator class
     /// </summary>
-    public void GenerateMap()
+    public void GeneratePreview()
     {
-        Vector2I size = settings.worldSize;
-        Vector2I offset = Vector2I.Zero;
-        GradientMapGenerator GradientMapGenerator = new GradientMapGenerator();
-        NoiseMapGenerator NoiseMapGenerator = new NoiseMapGenerator(settings.elevationMapConfigs);
-
-        float[,] heightMap = NoiseMapGenerator.Run(offset, size);
-        float[,] temperatureMap = GradientMapGenerator.Run(offset, size, size, settings.trueCenter);
-
-        temperatureMap = GenerationUtil.GenerateTemperatureMap(size, temperatureMap, heightMap, settings);
-
-        NoiseMapGenerator = new NoiseMapGenerator(settings.rainfallMapConfigs);
-        float[,] rainfallMap = NoiseMapGenerator.Run(offset, size);
-
-        float[,] moistureMap = GenerationUtil.GenerateMoisture(size, heightMap, rainfallMap, temperatureMap, settings);
-
-        GenStepTerrain genStepTerrain = new GenStepTerrain(heightMap, temperatureMap, moistureMap);
-
-        Tile[,] terrain = genStepTerrain.Run(offset, size);
-
-        foreach (var tile in terrain)
-        {
-            AddChild(tile);
-        }
+        mapGenerator.updateSize();
+        mapGenerator.GenerateMap(Vector2I.Zero, this);
     }
-
-    /// <summary>
-    /// generates a chunk at given position
-    /// </summary>
-    public void GenerateChunk(Vector2 chunkPosition)
-    {
-        // GenerateNoiseMaps(default, settings.WorldSize, chunkPosition);
-    }
-
 }

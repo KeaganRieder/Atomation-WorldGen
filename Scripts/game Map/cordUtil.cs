@@ -40,9 +40,10 @@ public static class cordUtil
     public static Vector2I WorldToChunk(this Vector2 worldPosition)
     {
         Vector2I chunkPosition = new Vector2I(
-            Mathf.FloorToInt(worldPosition.X / Map.CELL_SIZE/Chunk.CHUNK_SIZE),
-            Mathf.FloorToInt(worldPosition.Y / Map.CELL_SIZE/Chunk.CHUNK_SIZE)
+            Mathf.FloorToInt(worldPosition.X / Map.CELL_SIZE / Chunk.CHUNK_SIZE),
+            Mathf.FloorToInt(worldPosition.Y / Map.CELL_SIZE / Chunk.CHUNK_SIZE)
         );
+        // GD.Print($"{worldPosition} {chunkPosition}");
         return chunkPosition;
     }
 
@@ -53,8 +54,8 @@ public static class cordUtil
     public static Vector2I ChunkToWorld(this Vector2 chunkPosition)
     {
         Vector2I worldPosition = new Vector2I(
-            Mathf.FloorToInt(chunkPosition.X / Map.CELL_SIZE/Chunk.CHUNK_SIZE),
-            Mathf.FloorToInt(chunkPosition.Y / Map.CELL_SIZE/Chunk.CHUNK_SIZE)
+            Mathf.FloorToInt(chunkPosition.X / Map.CELL_SIZE / Chunk.CHUNK_SIZE),
+            Mathf.FloorToInt(chunkPosition.Y / Map.CELL_SIZE / Chunk.CHUNK_SIZE)
         );
         return worldPosition;
     }

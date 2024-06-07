@@ -9,6 +9,8 @@ public partial class Tile : Node2D
     public float Moisture;
     public float Temperature;
 
+    private int gridLayer = 1;
+
     private Sprite2D graphic;
 
     Vector2I tileCord;
@@ -42,4 +44,13 @@ public partial class Tile : Node2D
     {
         graphic.Modulate = color;
     }
+
+    /// <summary>
+    /// returns the layer the given object should be on in a grid
+    /// </summary>
+    public int GetLayer()
+    {
+        return gridLayer;
+    }
+
 }

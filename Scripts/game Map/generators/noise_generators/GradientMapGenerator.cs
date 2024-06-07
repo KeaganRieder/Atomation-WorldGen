@@ -2,9 +2,8 @@ namespace Atomation.GameMap;
 
 using Godot;
 
-public class GradientMapGenerator : Generator<float>
+public class GradientMapGenerator : NoiseGenerators
 {
-    private float[,] noiseMap;
     private float center;
 
     public GradientMapGenerator()

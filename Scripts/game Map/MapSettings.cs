@@ -33,20 +33,6 @@ public class MapSettings
     /// to be closer to it
     /// </summary>
     public float baseTemperature { get; set; }
-    // /// <summary>
-    // /// value used to determine how big of a decrease a value has the 
-    // /// further awy form the center it is
-    // /// </summary>
-    // public float equatorBias { get; set; }
-    // /// <summary>
-    // /// incremental step at which temperature should be lost
-    // /// </summary>
-    // public float temperatureHeight { get; set; }
-    // /// <summary>
-    // /// the amount of temperature that should be lost 
-    // /// for each height step
-    // /// </summary>
-    // public float temperatureHeightLoss { get; set; }
 
     public MapSettings() { }
 
@@ -58,7 +44,7 @@ public class MapSettings
         worldSize = new Vector2I(100, 100);
 
         infiniteWorld = true;
-        trueCenter = false;
+        trueCenter = true;
 
         noiseMapScale = 1;
         seed = 0;
@@ -66,23 +52,23 @@ public class MapSettings
         {
             Scale = noiseMapScale,
             Seed = seed,
-            Octaves = 6,
+            Octaves = 3,
             Frequency = 0.01f,
-            Lacunarity = 3f, 
+            Lacunarity = 3f,
             Gain = 0.4f,
             NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
             FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
             NoiseOffset = Vector2.Zero,
             Normalized = false,
         };
-       
+
         rainfallMapConfigs = new NoiseMapConfigs
         {
             Scale = noiseMapScale,
             Seed = seed,
             Octaves = 5,
             Frequency = 0.03f,
-            Lacunarity = 2f, 
+            Lacunarity = 2f,
             Gain = 0.4f,
             NoiseType = FastNoiseLite.NoiseTypeEnum.Simplex,
             FractalType = FastNoiseLite.FractalTypeEnum.Fbm,
@@ -92,8 +78,5 @@ public class MapSettings
 
         baseMoisture = 0f;
         baseTemperature = 0.8f;
-        // equatorBias = 2f;
-        // temperatureHeight = .01f;
-        // temperatureHeightLoss = .01f;
     }
 }

@@ -12,12 +12,11 @@ public class Grid
     //holds layers of dictionary that contain values for each position
     private Dictionary<int, Dictionary<Vector2, object>> grid;
 
-    public Grid(bool Loading = true)
+    public Grid(bool Loading = false)
     {
         if (!Loading)
         {
             grid = new Dictionary<int, Dictionary<Vector2, object>>();
-
         }
     }
 
@@ -28,7 +27,6 @@ public class Grid
     {
         if (layer < 0)
         {
-            // todo check type and then base layer on that if none is given
             layer = 0;
         }
         if (!HasLayer(layer))
@@ -50,6 +48,7 @@ public class Grid
         }
         return default;
     }
+    
     /// <summary>
     /// returns grids cells as a list
     /// </summary>
@@ -61,7 +60,7 @@ public class Grid
     /// <summary>
     /// adds layers
     /// </summary>
-    public void AddLayer(int layer)
+    private void AddLayer(int layer)
     {
         if (!grid.ContainsKey(layer))
         {
